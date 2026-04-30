@@ -29,15 +29,53 @@ DATA_DIR="/opt/ai-data"
 MODELS_DIR="/opt/ai-models"
 
 header "1/7 — Atualizando sistema e dependências"
+# Aguarda lock do apt ser liberado
+wait_apt() {
+  while fuser /var/lib/apt/lists/lock /var/lib/dpkg/lock /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+    warn "apt bloqueado por outro processo, aguardando 5s..."
+    sleep 5
+  done
+}
+
+wait_apt
 apt-get update -y && apt-get upgrade -y
+
+wait_apt
 apt-get install -y \
   curl wget git build-essential cmake \
   nginx certbot python3-certbot-nginx \
-  docker.io docker-compose \
   nodejs npm \
   htop tmux ufw \
   python3 python3-pip python3-venv \
-  libssl-dev libffi-dev
+  libssl-dev libffi-dev ca-certificates gnupg lsb-release
+
+# ── Docker CE (repositório oficial — evita conflito com containerd) ───────────
+if ! command -v docker &>/dev/null; then
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+    gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  chmod a+r /etc/apt/keyrings/docker.gpg
+
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+    https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+  # Remove conflitos antes de instalar
+  apt-get remove -y containerd containerd.io docker.io 2>/dev/null || true
+  wait_apt
+  apt-get update -y
+  apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+  log "Docker CE instalado"
+else
+  warn "Docker já instalado — pulando"
+fi
+
+# Instala docker-compose standalone (compatibilidade com docker-compose.yml v2)
+if ! command -v docker-compose &>/dev/null; then
+  curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" \
+    -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+fi
 
 # Habilita Docker
 systemctl enable docker && systemctl start docker
