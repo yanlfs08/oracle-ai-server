@@ -214,6 +214,19 @@ cd $INSTALL_DIR
 docker-compose up -d
 log "Open WebUI iniciado"
 
+# ─── iptables — permite Docker acessar Ollama no host ────────────────────────
+sleep 10
+DOCKER_GW=$(docker network inspect ai-server_ai-net 2>/dev/null | \
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['IPAM']['Config'][0]['Gateway'])" 2>/dev/null || echo "172.20.0.1")
+DOCKER_NET=$(docker network inspect ai-server_ai-net 2>/dev/null | \
+  python3 -c "import sys,json; d=json.load(sys.stdin); print(d[0]['IPAM']['Config'][0]['Subnet'])" 2>/dev/null || echo "172.20.0.0/16")
+iptables -I DOCKER-USER -s "$DOCKER_NET" -d "$DOCKER_GW" -p tcp --dport 11434 -j ACCEPT 2>/dev/null || true
+iptables -I INPUT -s "$DOCKER_NET" -p tcp --dport 11434 -j ACCEPT
+apt-get install -y iptables-persistent -qq
+netfilter-persistent save
+log "Regras iptables salvas (Docker -> Ollama)"
+
+
 # ─── Nginx ───────────────────────────────────────────────────────────────────
 cp $INSTALL_DIR/nginx/ai-server.conf /etc/nginx/sites-available/ai-server
 ln -sf /etc/nginx/sites-available/ai-server /etc/nginx/sites-enabled/ai-server
