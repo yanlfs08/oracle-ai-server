@@ -147,19 +147,20 @@ log "llama.cpp compilado"
 
 # ─── Download Qwen3.6-35B-A3B Q4 ─────────────────────────────────────────────
 header "6/7 — Baixando Qwen3.6-35B-A3B Q4 (llama.cpp)"
-pip3 install huggingface_hub --break-system-packages --quiet
+python3 -m venv /opt/hf-venv --system-site-packages
+/opt/hf-venv/bin/pip install --quiet --upgrade huggingface_hub
 
 info "Iniciando download do Qwen3.6-35B-A3B Q4_K_M (~22GB)..."
 warn "Este download pode levar 30-60 minutos dependendo da banda"
 
-python3 << 'PYEOF'
+/opt/hf-venv/bin/python3 << 'PYEOF'
 from huggingface_hub import hf_hub_download
 import os
 
 model_dir = "/opt/ai-models/qwen3.6-35b"
 os.makedirs(model_dir, exist_ok=True)
 
-print("Baixando Qwen3.6-35B-A3B Q4_K_M...")
+print("Baixando Qwen3.6-35B-A3B Q4_K_M (~22GB)...")
 path = hf_hub_download(
     repo_id="unsloth/Qwen3.6-35B-A3B-GGUF",
     filename="Qwen3.6-35B-A3B-Q4_K_M.gguf",
