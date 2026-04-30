@@ -1,0 +1,71 @@
+{
+  "_comment": "Configuração MCP para Claude Code / Cursor / VS Code",
+  "_comment2": "Copie o bloco que precisa para seu ~/.cursor/mcp.json ou ~/.claude.json",
+
+  "mcpServers": {
+
+    "filesystem": {
+      "_comment": "Acesso ao sistema de arquivos — edite os paths permitidos",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/seu-usuario/projetos",
+        "/var/www"
+      ]
+    },
+
+    "git": {
+      "_comment": "Operações Git — clone, diff, log, commit",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-git",
+        "--repository",
+        "/home/seu-usuario/projetos"
+      ]
+    },
+
+    "fetch": {
+      "_comment": "Busca URLs — útil para ler docs e APIs externas",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ]
+    },
+
+    "memory": {
+      "_comment": "Memória persistente entre sessões de desenvolvimento",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+
+    "qwen-fast": {
+      "_comment": "Qwen2.5-Coder 7B — rápido, para tasks do dia a dia",
+      "_comment2": "Use este para completions rápidas, boilerplate, perguntas simples",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"],
+      "env": {
+        "MODEL_ENDPOINT": "http://SEU_IP/ollama",
+        "MODEL_NAME": "qwen2.5-coder:7b",
+        "LABEL": "⚡ Qwen 7B (rápido)"
+      }
+    },
+
+    "qwen-deep": {
+      "_comment": "Qwen3.6-35B-A3B — raciocínio profundo, para tasks complexas",
+      "_comment2": "Adicione /think no prompt para ativar modo de raciocínio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"],
+      "env": {
+        "MODEL_ENDPOINT": "http://SEU_IP/qwen36/v1",
+        "MODEL_NAME": "qwen3.6-35b-a3b",
+        "LABEL": "🧠 Qwen3.6 35B (profundo)"
+      }
+    }
+  }
+}

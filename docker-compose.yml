@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # ── Open WebUI ────────────────────────────────────────────────────────────
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:8080"   # Exposto apenas localmente via Nginx
+    volumes:
+      - /opt/ai-data/open-webui:/app/backend/data
+    environment:
+      # Conecta ao Ollama rodando no host
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+
+      # Conecta também ao Qwen3.6 via llama.cpp (OpenAI-compatible)
+      - OPENAI_API_BASE_URL=http://host.docker.internal:8081/v1
+      - OPENAI_API_KEY=local-key
+
+      # Segurança
+      - WEBUI_AUTH=true
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY:-troque-esta-chave-secreta}
+      - WEBUI_NAME=AI Dev Server
+
+      # Performance
+      - RAG_EMBEDDING_ENGINE=ollama
+      - RAG_EMBEDDING_MODEL=nomic-embed-text
+
+      # Desabilita telemetria
+      - SCARF_NO_ANALYTICS=true
+      - DO_NOT_TRACK=true
+      - ANONYMIZED_TELEMETRY=false
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - ai-net
+
+  # ── Watchtower — auto-update do Open WebUI ────────────────────────────────
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *   # Atualiza às 4h da manhã
+      - WATCHTOWER_INCLUDE_STOPPED=false
+    networks:
+      - ai-net
+
+networks:
+  ai-net:
+    driver: bridge
