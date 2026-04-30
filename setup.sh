@@ -147,7 +147,7 @@ log "llama.cpp compilado"
 
 # ─── Download Qwen3.6-35B-A3B Q4 ─────────────────────────────────────────────
 header "6/7 — Baixando Qwen3.6-35B-A3B Q4 (llama.cpp)"
-pip3 install huggingface_hub --break-system-packages 2>/dev/null || pip3 install huggingface_hub
+pip3 install huggingface_hub --break-system-packages --quiet
 
 info "Iniciando download do Qwen3.6-35B-A3B Q4_K_M (~22GB)..."
 warn "Este download pode levar 30-60 minutos dependendo da banda"
