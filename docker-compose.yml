@@ -10,10 +10,10 @@ services:
       - /opt/ai-data/open-webui:/app/backend/data
     environment:
       # Conecta ao Ollama rodando no host
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - OLLAMA_BASE_URL=http://172.20.0.1:11434
 
       # Conecta também ao Qwen3.6 via llama.cpp (OpenAI-compatible)
-      - OPENAI_API_BASE_URL=http://host.docker.internal:8081/v1
+      - OPENAI_API_BASE_URL=http://172.20.0.1:8081/v1
       - OPENAI_API_KEY=local-key
 
       # Segurança
