@@ -163,9 +163,8 @@ os.makedirs(model_dir, exist_ok=True)
 print("Baixando Qwen3.6-35B-A3B Q4_K_M (~22GB)...")
 path = hf_hub_download(
     repo_id="unsloth/Qwen3.6-35B-A3B-GGUF",
-    filename="Qwen3.6-35B-A3B-Q4_K_M.gguf",
+    filename="Qwen3.6-35B-A3B-UD-Q4_K_M.gguf",
     local_dir=model_dir,
-    resume_download=True
 )
 print(f"Modelo salvo em: {path}")
 PYEOF
@@ -186,7 +185,7 @@ Wants=network-online.target
 Type=simple
 User=root
 ExecStart=/opt/llama.cpp/build/bin/llama-server \
-  --model /opt/ai-models/qwen3.6-35b/Qwen3.6-35B-A3B-Q4_K_M.gguf \
+  --model /opt/ai-models/qwen3.6-35b/Qwen3.6-35B-A3B-UD-Q4_K_M.gguf \
   --host 127.0.0.1 \
   --port 8081 \
   --ctx-size 16384 \
